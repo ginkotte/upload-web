@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  AWS_S3_BUCKET: 'rs-upload-widget-web-st'
+  AWS_S3_BUCKET: 'rs-upload-widget-web-cf'
   SOURCE_DIST: './dist'
 
 jobs:
@@ -45,3 +45,8 @@ jobs:
         id: sync-files-to-s3
         run: |
           aws s3 sync ${{env.SOURCE_DIST}} s3://${{env.AWS_S3_BUCKET}}/ --delete
+
+      - name: Invalidate CDN Cache
+        id: invalidate-cdn-cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
